@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Approved Log - Dept Head{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Final Approved Events</h1>
+    <p class="text-muted">Master log of all events that have received final departmental clearance.</p>
+</div>
+
+<!-- Search -->
+{% include "shared/search_filter.html" %}
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref ID</th>
+                        <th>Event Title</th>
+                        <th>Organizer</th>
+                        <th>Approval Date</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr>
+                        <td class="small fw-bold">{{ event.reference_id }}</td>
+                        <td class="fw-medium">{{ event.title }}</td>
+                        <td>{{ event.creator.username }}</td>
+                        <td class="small text-muted">{{ event.updated_at.strftime('%Y-%m-%d %H:%M') if event.updated_at
+                            else 'N/A' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('dept_head.review', event_id=event.id) }}"
+                                class="btn btn-sm btn-light">View Details</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-muted">No approved items in the log.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

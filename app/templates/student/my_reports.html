@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}My Events - EventFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="h2">My Event Reports</h1>
+        <p class="text-muted">History and status of all your submitted event proposals.</p>
+    </div>
+    <a href="{{ url_for('events.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg mr-2"></i> Submit New Event
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header border-bottom-0 bg-transparent pb-0">
+        {% include "shared/search_filter.html" %}
+    </div>
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reference ID</th>
+                        <th>Event Title</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr>
+                        <td class="fw-bold">{{ event.reference_id }}</td>
+                        <td>
+                            <div class="fw-medium">{{ event.title }}</div>
+                            <div class="small text-muted">{{ event.venue }}</div>
+                        </td>
+                        <td>{{ event.created_at.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            {% from "shared/event_status_badge.html" import status_badge %}
+                            {{ status_badge(event.status) }}
+                        </td>
+                        <td class="text-center">
+                            <div class="flex justify-center gap-2">
+                                <a href="{{ url_for('events.confirmation', event_id=event.id) }}" 
+                                   class="btn btn-sm btn-light" title="View"><i class="bi bi-eye"></i></a>
+                                
+                                {% if event.status.name in ['Draft', 'Changes_Requested'] %}
+                                <a href="{{ url_for('events.edit_event', event_id=event.id) }}" 
+                                   class="btn btn-sm btn-light" title="Edit"><i class="bi bi-pencil"></i></a>
+                                {% endif %}
+
+                                <a href="{{ url_for('events.track_status', event_id=event.id) }}" 
+                                   class="btn btn-sm btn-light" title="Track"><i class="bi bi-activity"></i></a>
+
+                                {% if event.status.name in ['Draft', 'Pending_Faculty'] %}
+                                <form action="{{ url_for('events.withdraw_event', event_id=event.id) }}"
+                                      method="POST" class="d-inline"
+                                      onsubmit="return confirm('Are you sure you want to withdraw this event?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Withdraw">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-muted">No reports found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white border-top-0">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

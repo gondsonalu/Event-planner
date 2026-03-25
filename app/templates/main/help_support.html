@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Help & Support - EventFlow{% endblock %}
+
+{% block content %}
+<div class="mb-8 text-center">
+    <h1 class="h1">How can we help you?</h1>
+    <p class="text-muted lead">Everything you need to know about the Event Planner & Approval System.</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <h2 class="mb-4">Frequently Asked Questions</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="text-primary">What is the approval workflow?</h4>
+                <p>All events must be submitted by a Student Organizer, reviewed by a Faculty Head, and finally approved
+                    by the Department Head. You can track the progress in your dashboard.</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="text-primary">How long does the approval take?</h4>
+                <p>Typical turnaround time is 3-5 business days. You will receive an email notification once a decision
+                    is made at each stage.</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="text-primary">Can I edit a submitted event?</h4>
+                <p>You can only edit events that are in "Draft" status or if "Changes Requested" was initiated by a
+                    reviewer. Approved events cannot be edited.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card bg-light border-0">
+            <div class="card-body">
+                <h3 class="mb-4">Contact Support</h3>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center justify-center bg-primary-light rounded-circle" style="width: 48px; height: 48px; flex-shrink: 0;">
+                        <i class="bi bi-envelope-at text-primary" style="font-size: 1.25rem;"></i>
+                    </div>
+                    <div class="text-nowrap">
+                        <div class="fw-bold">Email Support</div>
+                        <div class="small text-muted">{{ admin_email }}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center justify-center bg-primary-light rounded-circle" style="width: 48px; height: 48px; flex-shrink: 0;">
+                        <i class="bi bi-telephone text-primary" style="font-size: 1.25rem;"></i>
+                    </div>
+                    <div class="text-nowrap">
+                        <div class="fw-bold">Phone</div>
+                        <div class="small text-muted">{{ admin_phone }}</div>
+                    </div>
+                </div>
+                <hr>
+                <div class="small text-muted">Hours: Mon-Fri, 9am - 5pm</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

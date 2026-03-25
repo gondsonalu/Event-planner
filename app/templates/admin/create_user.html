@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Create New User - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i> Create New User Account
+                    </h5>
+                    <a href="{{ url_for('admin.list_users') }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('admin.create_user') }}" method="POST" id="createUserForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="row g-3">
+                            <!-- Username -->
+                            <div class="col-md-6">
+                                <label for="username" class="form-label fw-bold">Username <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="username" name="username"
+                                    placeholder="e.g. john_doe" value="{{ values.username if values else '' }}"
+                                    required>
+                                <div class="form-text">Must be unique across the system.</div>
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="col-md-6">
+                                <label for="full_name" class="form-label fw-bold">Full Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="full_name" name="full_name"
+                                    placeholder="e.g. John Doe" value="{{ values.full_name if values else '' }}"
+                                    required>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-12">
+                                <label for="email" class="form-label fw-bold">Email Address <span
+                                        class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="e.g. user@example.com" value="{{ values.email if values else '' }}"
+                                    required>
+                            </div>
+
+                            <!-- Role -->
+                            <div class="col-md-6">
+                                <label for="role" class="form-label fw-bold">System Role <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="role" name="role" required onchange="toggleDeptField()">
+                                    {% for role in roles %}
+                                    <option value="{{ role }}" {% if values and values.role==role %}selected{% endif %}>
+                                        {{ role }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Department -->
+                            <div class="col-md-6" id="deptField" style="display: none;">
+                                <label for="department" class="form-label fw-bold">Department <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="department" name="department"
+                                    placeholder="e.g. School of Engineering"
+                                    value="{{ values.department if values else '' }}">
+                            </div>
+
+                            <!-- Contact Number -->
+                            <div class="col-md-12">
+                                <label for="contact_number" class="form-label fw-bold">Contact Number <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <select class="form-select" name="country_code" style="max-width: 100px;">
+                                        <option value="+91" selected>+91 (IN)</option>
+                                        <option value="+1">+1 (US)</option>
+                                        <option value="+44">+44 (UK)</option>
+                                        <option value="+971">+971 (UAE)</option>
+                                    </select>
+                                    <input type="text" class="form-control" id="contact_number" name="contact_number"
+                                        placeholder="10-digit mobile number"
+                                        value="{{ values.contact_number if values else '' }}" required>
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <!-- Password -->
+                            <div class="col-md-6">
+                                <label for="password" class="form-label fw-bold">Password <span
+                                        class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="form-text">Min. 8 chars, mixed case & numbers.</div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label fw-bold">Confirm Password <span
+                                        class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="confirm_password"
+                                    name="confirm_password" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check-circle me-2"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-muted small p-3">
+                    <i class="fas fa-info-circle me-1"></i> Administratively created accounts are set to
+                    <strong>Active</strong> and <strong>Verified</strong> by default.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleDeptField() {
+        const role = document.getElementById('role').value;
+        const deptField = document.getElementById('deptField');
+        const deptInput = document.getElementById('department');
+
+        if (role === 'Faculty' || role === 'Department Head') {
+            deptField.style.display = 'block';
+            deptInput.required = true;
+        } else {
+            deptField.style.display = 'none';
+            deptInput.required = false;
+        }
+    }
+
+    // Initialize visibility on load
+    document.addEventListener('DOMContentLoaded', toggleDeptField);
+
+    // Form matching validation
+    document.getElementById('createUserForm').onsubmit = function (e) {
+        const pass = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm_password').value;
+
+        if (pass !== confirm) {
+            e.preventDefault();
+            alert("Passwords do not match!");
+            return false;
+        }
+        return true;
+    };
+</script>
+{% endblock %}

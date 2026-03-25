@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">System Administration</h1>
+            <p class="text-muted">Platform-wide oversight, user management, and audit tracking.</p>
+        </div>
+        <div class="badge bg-dark p-2 rounded-pill">
+            <i class="fas fa-user-shield me-2"></i> Admin Control
+        </div>
+    </div>
+
+    <!-- Security Alert -->
+    {% if integrity_compromised %}
+    <div class="alert alert-danger shadow-sm border-left-danger mb-4 d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+        <div>
+            <h5 class="mb-1 fw-bold">CRITICAL SECURITY ALERT</h5>
+            <p class="mb-0">Audit log tampering detected! The integrity of the security audit trail is compromised. Please investigate immediately.</p>
+        </div>
+        <a href="{{ url_for('admin.verify_audit_integrity') }}" class="btn btn-outline-danger btn-sm ms-auto">Verify Now</a>
+    </div>
+    {% endif %}
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Users</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Events</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ event_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Review</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Budget (Est)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800 text-truncate">{{ total_budget |
+                                format_inr }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            {% if escalated_events %}
+            <div class="card shadow mb-4 border-left-danger">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                    <h6 class="m-0 font-weight-bold text-danger"><i class="fas fa-exclamation-circle me-2"></i>Escalated
+                        Cases (Pending Admin Review)</h6>
+                    <span class="badge bg-danger">{{ escalated_count }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-danger text-white">
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Event</th>
+                                    <th>Reason for Escalation</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in escalated_events %}
+                                <tr>
+                                    <td><span class="fw-bold">{{ event.reference_id }}</span></td>
+                                    <td>
+                                        <div class="fw-bold">{{ event.title }}</div>
+                                        <div class="small text-muted">{{ event.creator.username }}</div>
+                                    </td>
+                                    <td class="small text-danger italic">"{{ event.escalation_reason }}"</td>
+                                    <td>
+                                        <a href="{{ url_for('events.confirmation', event_id=event.id) }}"
+                                            class="btn btn-sm btn-danger shadow-sm">Review</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Events</h6>
+                    <a href="{{ url_for('admin.all_events') }}" class="btn btn-sm btn-link">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Organizer</th>
+                                    <th>Status</th>
+                                    <th>Budget</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in recent_events %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ event.title }}</div>
+                                        <div class="small text-muted">ID: {{ event.reference_id }}</div>
+                                    </td>
+                                    <td>{{ event.creator.username if event.creator else 'Deleted User' }}</td>
+                                    <td>
+                                        {% from "shared/event_status_badge.html" import status_badge %}
+                                        {{ status_badge(event.status) }}
+                                    </td>
+                                    <td>{{ event.budget | format_inr }}</td>
+                                    <td>
+                                        <form action="{{ url_for('admin.delete_event', event_id=event.id) }}"
+                                            method="POST" onsubmit="return confirm('Are you sure?');"
+                                            style="display:inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Audit Logs</h6>
+                    <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-sm btn-link">Full Records</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for log in recent_logs %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 text-primary">{{ log.action_type }}</h6>
+                                <small class="text-muted">{{ log.timestamp.strftime('%H:%M') }}</small>
+                            </div>
+                            <p class="mb-1 small">{{ log.details }}</p>
+                            <small class="text-muted">by {{ log.user.username if log.user else 'System' }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Actions -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Controls</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary text-start">
+                            <i class="fas fa-user-plus me-2"></i> Create New User
+                        </a>
+                        <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-light border text-start">
+                            <i class="fas fa-history me-2 text-info"></i> View Audit Logs
+                        </a>
+                        <a href="{{ url_for('admin.list_users') }}" class="btn btn-light border text-start">
+                            <i class="fas fa-users-cog me-2 text-primary"></i> Manage Users
+                        </a>
+                        <a href="{{ url_for('admin.export_reports') }}" class="btn btn-light border text-start">
+                            <i class="fas fa-file-export me-2 text-success"></i> Export System Report
+                        </a>
+                        <a href="{{ url_for('admin.reassign_events') }}" class="btn btn-light border text-start">
+                            <i class="fas fa-exchange-alt me-2 text-warning"></i> Reassign Pending Events
+                        </a>
+                        <hr>
+                        <a href="{{ url_for('admin.system_settings') }}" class="btn btn-outline-danger">
+                            <i class="fas fa-server me-2"></i> System Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Platform Health</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-4 text-success mb-2">99.9%</div>
+                    <div class="small fw-bold text-uppercase text-muted mb-3">System Uptime</div>
+                    <div class="progress mb-4" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 99.9%"></div>
+                    </div>
+                    <div class="text-start small">
+                        <div class="mb-1"><i class="fas fa-circle text-success me-1" style="font-size: 8px;"></i>
+                            Database: Online</div>
+                        <div class="mb-1"><i class="fas fa-circle text-success me-1" style="font-size: 8px;"></i> Mail
+                            Server: Online</div>
+                        <div class="mb-1"><i class="fas fa-circle text-success me-1" style="font-size: 8px;"></i> Auth
+                            Service: Online</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

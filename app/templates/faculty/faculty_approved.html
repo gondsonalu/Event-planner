@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Approved History - Faculty{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Approved Events History</h1>
+    <p class="text-muted">Archive of all events you have successfully reviewed and approved.</p>
+</div>
+
+<!-- Search -->
+{% include "shared/search_filter.html" %}
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref ID</th>
+                        <th>Event Title</th>
+                        <th>Organizer</th>
+                        <th>Status</th>
+                        <th class="text-center">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr>
+                        <td class="small fw-bold">{{ event.reference_id }}</td>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.creator.username }}</td>
+                        <td>
+                            <span
+                                class="badge {% if event.status.value == 'Approved' %}badge-success{% else %}badge-info{% endif %}">
+                                {{ event.status.value }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('faculty.review', event_id=event.id) }}" class="btn btn-sm btn-light"><i
+                                    class="bi bi-file-earmark-text"></i></a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-muted">No approved events found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

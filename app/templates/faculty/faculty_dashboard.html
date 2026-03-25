@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - EventFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Faculty Advisor Oversight</h1>
+    <p class="text-muted">Review and manage event proposals awaiting your guidance.</p>
+</div>
+
+{% include "shared/search_filter.html" %}
+
+<!-- Metrics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="label">Pending Review</div>
+        <div class="value">{{ pending_count }}</div>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 100%; background: var(--warning);"></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Approved This Month</div>
+        <div class="value">{{ approved_this_month }}</div>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 100%; background: var(--success);"></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Avg. Turnaround</div>
+        <div class="value">{{ avg_turnaround }}</div>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 100%; background: var(--info);"></div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h3 class="mb-0">Awaiting Action</h3>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Organizer</th>
+                        <th>Event Title</th>
+                        <th>Submitted</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ event.creator.username }}</div>
+                            <div class="small text-muted">Dept: {{ event.creator.department or 'N/A' }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ event.title }}</div>
+                            <div class="small text-muted">{{ event.event_type }}</div>
+                        </td>
+                        <td>{{ event.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('faculty.review', event_id=event.id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-clipboard-check"></i> Review Now
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-6 text-muted">No pending events to review.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

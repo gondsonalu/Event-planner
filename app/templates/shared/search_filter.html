@@ -1,0 +1,35 @@
+{# Search and Filter Snippet #}
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="GET" action="{{ request.path }}" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0"
+                        placeholder="Search by title, organizer, or keywords..." value="{{ search_query or '' }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+            {% if show_filters %}
+            <div class="col-md-3">
+                <select name="status" class="status-select-themed" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for status in event_statuses %}
+                    <option value="{{ status.value }}" {% if request.args.get('status')==status.value %}selected{% endif
+                        %}>
+                        {{ status.value }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-1">
+                <a href="{{ request.path }}" class="btn btn-outline-secondary w-100" title="Reset Filters">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

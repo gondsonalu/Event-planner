@@ -1,0 +1,23 @@
+{% macro status_badge(status) %}
+{% if status.name == 'Approved' %}
+<span class="badge badge-success"
+    style="background-color: var(--success); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">Approved</span>
+{% elif status.name == 'Rejected' %}
+<span class="badge badge-danger"
+    style="background-color: var(--danger); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">Rejected</span>
+{% elif status.name == 'Changes_Requested' %}
+<span class="badge badge-warning"
+    style="background-color: var(--warning); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">Changes
+    Needed</span>
+{% elif status.name.startswith('Pending') %}
+<span class="badge badge-info"
+    style="background-color: var(--info); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">Pending</span>
+{% elif status.name == 'Withdrawn' %}
+<span class="badge badge-secondary"
+    style="background-color: var(--secondary); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">Withdrawn</span>
+{% else %}
+<span class="badge badge-secondary"
+    style="background-color: var(--secondary); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">{{
+    status.value }}</span>
+{% endif %}
+{% endmacro %}

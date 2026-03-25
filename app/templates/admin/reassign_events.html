@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Reassign Events - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Reassign Events</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i> Reassign Pending Events</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Use this tool to reassign events from a deactivated or deleted user to an active staff member or
+                        student.
+                    </div>
+
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">From User (Source)</label>
+                            <select name="old_user_id" class="form-select form-select-lg" required>
+                                <option value="">— Select User to Move Events FROM —</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.username }} ({{ user.role }}) - {{ user.department
+                                    or 'No Dept' }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Select the user whose events you want to move.</div>
+                        </div>
+
+                        <div class="mb-4 text-center">
+                            <div class="display-6"><i class="fas fa-arrow-down text-muted"></i></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">To User (Destination)</label>
+                            <select name="new_user_id" class="form-select form-select-lg" required>
+                                <option value="">— Select User to Move Events TO —</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.username }} ({{ user.role }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">All events created by the first user will be reassigned to this user.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg"
+                                onclick="return confirm('WARNING: This will reassign ALL events from the source user. Continue?')">
+                                Confirm Reassignment
+                            </button>
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Master Event Log - Admin{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Master Event Records</h1>
+    <p class="text-muted">Global view of every event proposal across all departments and stages.</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <form method="GET" action="{{ url_for('admin.all_events') }}">
+            <div class="row g-3 items-end">
+                <div class="col-md-3">
+                    <label class="small fw-bold mb-1 d-block">Status</label>
+                    <select name="status" class="status-select-themed w-100">
+                        <option value="All">All Statuses</option>
+                        <option value="Draft" {% if current_status=='Draft' %}selected{% endif %}>Draft</option>
+                        <option value="Pending_Faculty" {% if current_status=='Pending_Faculty' %}selected{% endif %}>
+                            Pending Faculty</option>
+                        <option value="Pending_Head" {% if current_status=='Pending_Head' %}selected{% endif %}>Pending
+                            Dept Head</option>
+                        <option value="Pending_Admin" {% if current_status=='Pending_Admin' %}selected{% endif %}>
+                            Pending Admin</option>
+                        <option value="Approved" {% if current_status=='Approved' %}selected{% endif %}>Approved
+                        </option>
+                        <option value="Rejected" {% if current_status=='Rejected' %}selected{% endif %}>Rejected
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="small fw-bold mb-1 d-block">Type</label>
+                    <select name="event_type" class="status-select-themed w-100">
+                        <option value="All">All Types</option>
+                        <option value="Seminar" {% if current_type=='Seminar' %}selected{% endif %}>Seminar</option>
+                        <option value="Workshop" {% if current_type=='Workshop' %}selected{% endif %}>Workshop</option>
+                        <option value="Cultural" {% if current_type=='Cultural' %}selected{% endif %}>Cultural</option>
+                        <option value="Sports" {% if current_type=='Sports' %}selected{% endif %}>Sports</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="small fw-bold mb-1 d-block">Start Date</label>
+                    <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="small fw-bold mb-1 d-block">End Date</label>
+                    <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
+                </div>
+                <div class="col-md-3">
+                    <div class="flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary flex-grow-1">Apply Filters</button>
+                        <a href="{{ url_for('admin.all_events') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref</th>
+                        <th>Event</th>
+                        <th>Organizer</th>
+                        <th>Dept</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr class="{{ 'table-danger' if event.is_urgent else '' }}">
+                        <td class="small fw-bold">{{ event.reference_id }}</td>
+                        <td>
+                            <div class="fw-bold">
+                                {{ event.title }}
+                                {% if event.is_urgent %}
+                                <span class="badge bg-danger ms-1">URGENT</span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-muted">{{ event.event_type }}</div>
+                        </td>
+                        <td>{{ event.creator.username if event.creator else 'System' }}</td>
+                        <td>{{ event.creator.department if event.creator and event.creator.department else 'N/A' }}</td>
+                        <td>
+                            {% from "shared/event_status_badge.html" import status_badge %}
+                            {{ status_badge(event.status) }}
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <a href="{{ url_for('events.confirmation', event_id=event.id) }}"
+                                    class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <form action="{{ url_for('admin.delete_event', event_id=event.id) }}" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to PERMANENTLY delete this event? This cannot be undone.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center p-5 text-muted">No event records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

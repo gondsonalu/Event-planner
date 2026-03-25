@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}System Audit Logs - Admin{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="h2">Internal Audit Trail</h1>
+        <p class="text-muted">Secure, read-only records of all critical system activities and data mutations.</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{{ url_for('admin.export_audit_logs') }}" class="btn btn-sm btn-light">
+            <i class="bi bi-file-earmark-spreadsheet mr-2"></i> Export Excel
+        </a>
+        <a href="{{ url_for('admin.verify_audit_integrity') }}" class="btn btn-sm btn-outline-success">
+            <i class="bi bi-shield-lock mr-2"></i> Verify Integrity
+        </a>
+        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+            data-bs-target="#clearLogsModal">
+            <i class="bi bi-trash mr-2"></i> Clear Logs
+        </button>
+    </div>
+</div>
+
+<!-- Clear Logs Confirmation Modal -->
+<div class="modal fade" id="clearLogsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Safety Critical: Clear Audit Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin.clear_audit_logs') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill mr-2"></i>
+                        WARNING: This action permanently deletes historical records. This may violate compliance
+                        policies (Section 12.7).
+                    </div>
+                    <p>Type <strong>DELETE</strong> to confirm permanent deletion:</p>
+                    <input type="text" name="confirm_text" class="form-control" required placeholder="DELETE">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white pb-0 border-bottom-0">
+        {% include "shared/search_filter.html" %}
+    </div>
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time (UTC)</th>
+                        <th>Actor</th>
+                        <th>Action Type</th>
+                        <th>Resource</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in pagination.items %}
+                    <tr>
+                        <td class="small text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <span class="fw-bold">{{ log.user.username if log.user else 'System' }}</span>
+                            <div class="small text-muted">{{ log.ip_address }}</div>
+                        </td>
+                        <td><span class="badge badge-secondary">{{ log.action_type }}</span></td>
+                        <td>{{ log.entity_type }} #{{ log.entity_id }}</td>
+                        <td class="small">{{ log.details }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center p-5 text-muted">No audit logs found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

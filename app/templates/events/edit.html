@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Event - {{ event.reference_id }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <h3 class="mb-0 fw-bold text-primary">Edit Event Submission</h3>
+                <p class="text-muted mb-0">Reference: {{ event.reference_id }} | Current Status: {{ event.status.value
+                    }}</p>
+                {% if event.status.name == 'Changes_Requested' and event.rejection_reason %}
+                <div class="alert alert-warning mt-3 mb-0">
+                    <strong>Changes Requested:</strong> {{ event.rejection_reason }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                <form action="{{ url_for('events.update_event', event_id=event.id) }}" method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Basic Info -->
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Basic Information</h5>
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label fw-semibold") }}
+                        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                        {% for error in form.title.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label fw-semibold") }}
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""),
+                        rows="4") }}
+                        {% for error in form.description.errors %}<div class="invalid-feedback">{{ error }}</div>{%
+                        endfor %}
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            {{ form.event_type.label(class="form-label fw-semibold") }}
+                            {{ form.event_type(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.venue.label(class="form-label fw-semibold") }}
+                            {{ form.venue(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.event_date.label(class="form-label fw-semibold") }}
+                            {{ form.event_date(class="form-control", type="date") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.start_time.label(class="form-label fw-semibold") }}
+                            {{ form.start_time(class="form-control", type="time") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.end_time.label(class="form-label fw-semibold") }}
+                            {{ form.end_time(class="form-control", type="time") }}
+                        </div>
+                    </div>
+
+                    <!-- Audience -->
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Audience</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            {{ form.audience_type.label(class="form-label fw-semibold") }}
+                            {{ form.audience_type(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.audience_size.label(class="form-label fw-semibold") }}
+                            {{ form.audience_size(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <!-- Budget -->
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Budget</h5>
+                    <div class="mb-4">
+                        {{ form.budget.label(class="form-label fw-semibold") }}
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            {{ form.budget(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-3 fw-bold">Update and Resubmit Proposal</button>
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-light border py-2">Back to
+                            Dashboard</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

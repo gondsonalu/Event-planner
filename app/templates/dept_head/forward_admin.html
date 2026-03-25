@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Forward to Admin - Dept Head{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Forward Exceptional Cases to Admin</h1>
+    <p class="text-muted">Use this interface for events requiring super-user intervention or high-level institutional
+        policy exceptions.</p>
+</div>
+
+<div class="card bg-info-light border-info">
+    <div class="card-body">
+        <h3 class="text-info"><i class="bi bi-info-circle mr-2"></i> Exceptional Handling</h3>
+        <p>Forwarding an event to the System Admin bypasses certain departmental validation rules but requires precise
+            justification.</p>
+
+        <div class="table-container mt-4 bg-white">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Organizer</th>
+                        <th>Exception Reason</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ event.title }}</div>
+                            <div class="small text-muted">Ref: {{ event.reference_id }}</div>
+                        </td>
+                        <td>{{ event.creator.username }}</td>
+                        <td class="small">{{ event.event_type }} | {{ event.venue }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('dept_head.review', event_id=event.id) }}" 
+                               class="btn btn-info btn-sm text-white">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Review & Escalate
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-6 text-muted">No exceptional cases ready for forwarding.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4">
+            {% include "shared/pagination.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% from "shared/event_status_badge.html" import status_badge %}
+
+{% block title %}Review Event: {{ event.reference_id }}{% endblock %}
+
+{% block content %}
+<nav class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('faculty.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Review Event</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Event Details Card -->
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="mb-0 text-primary">#{{ event.reference_id }}: {{ event.title }}</h3>
+                <span class="badge badge-info">{{ event.status.value }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Event Type</label>
+                        <div class="fw-bold">{{ event.event_type }}</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Venue</label>
+                        <div class="fw-bold">{{ event.venue }}</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Date</label>
+                        <div class="fw-bold">{{ event.event_date.strftime('%B %d, %Y') }}</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Timing</label>
+                        <div class="fw-bold">
+                            {{ event.start_time.strftime('%I:%M %p') }} - {{ event.end_time.strftime('%I:%M %p') }}
+                        </div>
+                    </div>
+                    <div class="col-12 mb-4">
+                        <label class="text-muted small">Description</label>
+                        <p class="mb-0">{{ event.description }}</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Target Audience</label>
+                        <div>{{ event.audience_type }} (Approx. {{ event.audience_size }})</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Budget Requested</label>
+                        <div class="text-success fw-bold">{{ event.budget | format_inr }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Requirements -->
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="mb-0">Technical & Security</h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex items-center gap-2">
+                        <i
+                            class="bi {{ 'bi-check-circle-fill text-success' if event.requires_projector else 'bi-dash-circle text-muted' }}"></i>
+                        <span>Projector</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i
+                            class="bi {{ 'bi-check-circle-fill text-success' if event.requires_microphone else 'bi-dash-circle text-muted' }}"></i>
+                        <span>Microphone</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i
+                            class="bi {{ 'bi-check-circle-fill text-success' if event.requires_security else 'bi-dash-circle text-muted' }}"></i>
+                        <span>Security</span>
+                    </div>
+                </div>
+                {% if event.technical_requirements %}
+                <div class="mt-4">
+                    <label class="text-muted small">Additional Requirements</label>
+                    <div class="p-6 bg-light border rounded">
+                        {{ event.technical_requirements }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Decision Form -->
+        {% set action_url = url_for('faculty.decide', event_id=event.id) %}
+        {% set back_url = url_for('faculty.dashboard') %}
+        {% include 'shared/review_form.html' %}
+
+        <!-- Requester Info -->
+        <div class="card shadow-sm mb-6">
+            <div class="card-body">
+                <h3 class="h5 mb-4"><i class="bi bi-person-badge me-2"></i>Requester Details</h3>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="profile-avatar bg-primary text-white" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                        {{ event.creator.username[0]|upper }}
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ event.creator.username }}</div>
+                        <div class="small text-muted">ID: {{ event.creator.id }}</div>
+                    </div>
+                </div>
+                <div class="contact-info bg-light p-3 rounded border">
+                    <div class="mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-envelope text-primary"></i>
+                        <span class="small">{{ event.creator.email }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-telephone text-primary"></i>
+                        <span class="small">{{ event.creator.contact_number or 'Not Provided' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Download -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Event Summary</h3>
+                <p class="small text-muted mb-4">Download a formatted PDF summary for offline review or archiving.</p>
+                <a href="{{ url_for('events.download_pdf', event_id=event.id) }}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-file-earmark-pdf me-2"></i> Download as PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

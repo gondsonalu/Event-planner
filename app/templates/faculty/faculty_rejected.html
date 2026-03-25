@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Rejected Events - Faculty{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Rejected Events History</h1>
+    <p class="text-muted">List of events that did not meet the necessary criteria during review.</p>
+</div>
+
+<!-- Search -->
+{% include "shared/search_filter.html" %}
+
+<div class="card border-danger">
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref ID</th>
+                        <th>Event Title</th>
+                        <th>Organizer</th>
+                        <th>Rejection Reason</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in pagination.items %}
+                    <tr>
+                        <td class="small fw-bold">{{ event.reference_id }}</td>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.creator.username }}</td>
+                        <td class="small text-danger">{{ event.rejection_reason or "No reason provided." }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('faculty.review', event_id=event.id) }}"
+                                class="btn btn-sm btn-outline-secondary">View</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-muted">No rejected events found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        {% include "shared/pagination.html" %}
+    </div>
+</div>
+{% endblock %}

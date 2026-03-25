@@ -1,0 +1,56 @@
+/* intl-tel-input theme overrides for EventFlow */
+
+.iti {
+    display: block;
+    width: 100%;
+}
+
+.iti__flag-container {
+    border-radius: 4px 0 0 4px;
+}
+
+.iti__selected-flag {
+    background-color: transparent !important;
+}
+
+.iti__country-list {
+    background-color: var(--card-bg, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--radius, 0.75rem);
+    box-shadow: var(--shadow-md, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+    z-index: 1050;
+    max-width: 300px;
+    font-size: 0.875rem;
+    color: var(--text, #1e293b);
+}
+
+.iti__country {
+    padding: 10px 15px;
+    transition: background-color 0.2s;
+}
+
+.iti__country.iti__highlight {
+    background-color: var(--primary-light, #eff6ff);
+    color: var(--primary, #2563eb);
+}
+
+.iti__country.iti__active {
+    background-color: var(--primary, #2563eb);
+    color: white;
+}
+
+.iti__country-name {
+    font-weight: 500;
+}
+
+.iti__dial-code {
+    color: var(--secondary, #64748b);
+}
+
+.iti__country.iti__highlight .iti__dial-code {
+    color: var(--primary, #2563eb);
+}
+
+.iti__country.iti__active .iti__dial-code {
+    color: white;
+}

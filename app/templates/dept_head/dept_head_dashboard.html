@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Dept Head Dashboard - EventFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Department Executive Dashboard</h1>
+    <p class="text-muted">High-level oversight of departmental event approvals and bottlenecks.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="label">Pending My Action</div>
+            <div class="value text-warning">{{ pending_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="label">Approved Today</div>
+            <div class="value text-success">{{ approved_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="label">Rejected (Total)</div>
+            <div class="value text-danger">{{ rejected_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="label">System Uptime</div>
+            <div class="value">99.9%</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Critical Pending Approvals</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Dept Source</th>
+                                <th>Budget</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in pagination.items %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ event.title }}</div>
+                                    <div class="small text-muted">ID: {{ event.reference_id }}</div>
+                                </td>
+                                <td>{{ event.creator.department or 'N/A' }}</td>
+                                <td>{{ event.budget | format_inr }}</td>
+                                <td class="text-center">
+                                    <a href="{{ url_for('dept_head.review', event_id=event.id) }}"
+                                        class="btn btn-primary btn-sm">Review</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center p-6 text-muted">No pending approvals found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Resource Usage</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="flex justify-between small mb-1">
+                        <span>Audi-1 Availability</span>
+                        <span>65%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between small mb-1">
+                        <span>Tech Support Load</span>
+                        <span>High</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar bg-danger" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

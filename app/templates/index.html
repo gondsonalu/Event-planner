@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Event Planner{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to Event Planner</h1>
+    <p class="lead">The institutional platform for seamless event planning and approvals.</p>
+    <div class="actions">
+        <a href="{{ url_for('event.create') }}" class="btn btn-primary">Start Planning</a>
+        <a href="{{ url_for('main.about') }}" class="btn btn-secondary">Learn More</a>
+    </div>
+</div>
+
+<section class="features">
+    <div class="feature-card">
+        <h3>Easy Submission</h3>
+        <p>Submit your event proposals with all necessary documentation in minutes.</p>
+    </div>
+    <div class="feature-card">
+        <h3>Track Progress</h3>
+        <p>Real-time status updates on your approval workflow.</p>
+    </div>
+    <div class="feature-card">
+        <h3>Secure & Audited</h3>
+        <p>Fully transparent and secure approval process for institutional compliance.</p>
+    </div>
+</section>
+{% endblock %}

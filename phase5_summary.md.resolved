@@ -1,0 +1,49 @@
+# Phase 5 Implementation Summary
+
+## Database Optimization (SQL Indexes)
+
+To ensure the system remains performant as the dataset grows, run the following SQL commands to create the necessary indexes. These indexes target the most common query paths identified in Phase 5 (Search, Audit Logs, and Dashboards).
+
+```sql
+-- Indexes for AuditLog table
+CREATE INDEX idx_audit_logs_timestamp ON audit_logs(timestamp);
+CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX idx_audit_logs_entity_type ON audit_logs(entity_type);
+
+-- Indexes for Event table (for Search and Filtering)
+CREATE INDEX idx_events_status ON events(status);
+CREATE INDEX idx_events_created_at ON events(created_at);
+CREATE INDEX idx_events_created_by ON events(created_by);
+-- Trigram indexes might be better for LIKE searches in PostgreSQL, 
+-- but for standard SQLite/SQL, these cover the basics.
+```
+
+## N+1 Query Elimination
+Every dashboard and list view has been refactored to use `joinedload()`. This ensures that related data (like User or Approvals) is fetched in a single efficient query instead of one query per row.
+
+Example from [faculty.py](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%205/app/blueprints/faculty.py):
+```python
+query = Event.query.options(joinedload(Event.creator)).filter_by(status=EventStatus.Pending_Faculty)
+```
+
+## Search & Pagination Integration
+A new utility [app/utils/search.py](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%205/app/utils/search.py) provides [apply_search_and_pagination](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%205/app/utils/search.py#4-45). This has been integrated into:
+- Student Dashboard
+- Faculty Dashboard
+- Dept Head Dashboard
+- Admin Users View
+- Admin Audit Logs View
+
+## Currency Formatting
+All monetary values now use the Indian Rupee symbol (**₹**). 
+- A custom Jinja2 filter `| format_inr` has been registered in [app/__init__.py](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%205/app/__init__.py).
+- Form labels in [app/forms/event_form.py](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%205/app/forms/event_form.py) have been updated.
+- All templates use the filter for consistent rendering (e.g., `{{ event.budget | format_inr }}`).
+
+## Audit Logging
+The [AuditLog](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%205/app/models/audit.py#15-32) system captures every significant action:
+- **LOGIN / LOGOUT / REGISTER**
+- **EVENT CREATE / EDIT**
+- **APPROVAL / REJECTION / CHANGES REQUESTED**
+
+Logs are viewable by Admins at `/admin/audit-logs`.

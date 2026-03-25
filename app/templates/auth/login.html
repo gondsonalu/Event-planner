@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - Event Planner{% endblock %}
+
+{% block content %}
+<div
+    style="max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h1 style="margin-bottom: 20px; font-size: 24px; color: var(--primary);">Sign In</h1>
+    <form action="" method="post" novalidate style="display: flex; flex-direction: column; gap: 15px;">
+        {{ form.hidden_tag() }}
+
+        <div>
+            {{ form.username.label(style="display: block; margin-bottom: 5px; font-weight: 500;") }}
+            {{ form.username(style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;") }}
+            {% for error in form.username.errors %}
+            <span style="color: var(--danger); font-size: 0.875rem;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+
+        <div style="position: relative;">
+            {{ form.password.label(style="display: block; margin-bottom: 5px; font-weight: 500;") }}
+            <div style="position: relative; display: flex; align-items: center;">
+                {{ form.password(id="password-field", style="width: 100%; padding: 10px; padding-right: 40px; border:
+                1px solid #ced4da; border-radius: 4px;") }}
+                <span id="toggle-password"
+                    style="position: absolute; right: 10px; cursor: pointer; color: var(--secondary);">
+                    <i class="bi bi-eye-slash" id="eye-icon"></i>
+                </span>
+            </div>
+            {% for error in form.password.errors %}
+            <span style="color: var(--danger); font-size: 0.875rem;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+            {{ form.remember(class="form-check-input", style="width: 1.1rem; height: 1.1rem; cursor: pointer; border: 1px solid #cbd5e1;") }}
+            {{ form.remember.label(style="margin: 0; font-size: 0.9375rem; color: #475569; cursor: pointer;") }}
+        </div>
+
+        <div style="margin-top: 10px;">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 6px;">
+                Sign In
+            </button>
+        </div>
+    </form>
+
+    <p style="margin-top: 20px; font-size: 0.9em; text-align: center;">New User? <a
+            href="{{ url_for('auth.register') }}">Click to Register!</a></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordField = document.getElementById('password-field');
+        const toggleButton = document.getElementById('toggle-password');
+        const eyeIcon = document.getElementById('eye-icon');
+
+        toggleButton.addEventListener('click', function () {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+
+            // Toggle the icon (bi-eye-slash for hidden, bi-eye for visible)
+            if (type === 'password') {
+                eyeIcon.classList.remove('bi-eye');
+                eyeIcon.classList.add('bi-eye-slash');
+            } else {
+                eyeIcon.classList.remove('bi-eye-slash');
+                eyeIcon.classList.add('bi-eye');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Control Center - EventFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-end">
+    <div>
+        <h1 class="h2">System Administration</h1>
+        <p class="text-muted">Global oversight of users, events, and institutional workflows.</p>
+    </div>
+    <div class="flex gap-2">
+        <button class="btn btn-sm btn-light"><i class="bi bi-download mr-2"></i> Export Data</button>
+        <button class="btn btn-sm btn-primary"><i class="bi bi-gear-fill mr-2"></i> Config</button>
+    </div>
+</div>
+
+<!-- Admin Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card border-start border-primary border-4">
+        <div class="label">Total System Users</div>
+        <div class="value">1,240</div>
+        <div class="small text-success mt-2"><i class="bi bi-graph-up mr-1"></i> +12% this month</div>
+    </div>
+    <div class="stat-card border-start border-success border-4">
+        <div class="label">Total Events Processed</div>
+        <div class="value">4,512</div>
+        <div class="small text-muted mt-2">FY 2025-26</div>
+    </div>
+    <div class="stat-card border-start border-warning border-4">
+        <div class="label">Active Workflows</div>
+        <div class="value">42</div>
+        <div class="small text-warning mt-2">Awaiting decision</div>
+    </div>
+    <div class="stat-card border-start border-info border-4">
+        <div class="label">System Uptime</div>
+        <div class="value">99.98%</div>
+        <div class="small text-success mt-2">Healthy</div>
+    </div>
+</div>
+
+<div class="row mt-6">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Recent System Audit</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="small">2026-03-15 14:20:05</td>
+                                <td class="fw-bold">Admin_User</td>
+                                <td>USER_UPDATE: role changed for 'stud_01'</td>
+                                <td><span class="badge badge-success">SUCCESS</span></td>
+                            </tr>
+                            <tr>
+                                <td class="small">2026-03-15 14:18:12</td>
+                                <td class="fw-bold">System</td>
+                                <td>BACKUP_ROUTINE: daily DB dump</td>
+                                <td><span class="badge badge-info">IN_PROG</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Quick Management</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-light text-start p-4 hover-shadow">
+                        <i class="bi bi-people-fill text-primary mr-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <div class="fw-bold">Manage Users</div>
+                            <div class="small text-muted">CRUD users and role assignments</div>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-light text-start p-4 hover-shadow">
+                        <i class="bi bi-journal-text text-danger mr-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <div class="fw-bold">Audit Trails</div>
+                            <div class="small text-muted">Security and activity monitoring</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

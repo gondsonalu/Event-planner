@@ -1,0 +1,64 @@
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 class="mb-0">Review Decision</h3>
+    </div>
+    <div class="card-body">
+        <p class="small text-muted mb-4">Provide your final decision and feedback for this proposal.</p>
+        <form action="{{ action_url }}" method="POST" id="decisionForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-4">
+                <label class="form-label">Decision</label>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="decision" id="approve" value="Approve"
+                        autocomplete="off" required>
+                    <label class="btn btn-outline-success" for="approve">
+                        <i class="bi bi-check-lg mr-2"></i> Approve
+                    </label>
+
+                    <input type="radio" class="btn-check" name="decision" id="changes" value="Changes_Requested"
+                        autocomplete="off" required>
+                    <label class="btn btn-outline-warning" for="changes">
+                        <i class="bi bi-pencil-square mr-2"></i> Changes
+                    </label>
+
+                    <input type="radio" class="btn-check" name="decision" id="reject" value="Reject" autocomplete="off"
+                        required>
+                    <label class="btn btn-outline-danger" for="reject">
+                        <i class="bi bi-x-lg mr-2"></i> Reject
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="comments" class="form-label">Review Feedback</label>
+                <textarea class="form-control" id="comments" name="comments" rows="5"
+                    placeholder="Provide constructive feedback for the student..."></textarea>
+                <div class="form-text" id="commentHelp">
+                    Comments are mandatory for "Reject" or "Request Changes".
+                </div>
+            </div>
+
+            <div class="flex vertical gap-2">
+                <button type="submit" class="btn btn-primary w-full">
+                    <i class="bi bi-send mr-2"></i> Submit Review
+                </button>
+                <a href="{{ back_url }}" class="btn btn-light w-full">
+                    Cancel and Return
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('decisionForm').addEventListener('submit', function (e) {
+        const decision = document.querySelector('input[name="decision"]:checked').value;
+        const comments = document.getElementById('comments').value.trim();
+
+        if ((decision === 'Reject' || decision === 'Changes_Requested') && !comments) {
+            e.preventDefault();
+            alert('Please provide comments for rejection or change requests.');
+        }
+    });
+</script>

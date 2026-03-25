@@ -1,0 +1,42 @@
+# Phase 6: Security Hardening & Workflow Refinement
+
+This phase has focused on making the Event Planner and Approval System production-ready by implementing robust security measures and handling complex workflow edge cases.
+
+## ✅ Security Hardening Checklist
+
+| Feature | Implementation Detail | Status |
+| :--- | :--- | :--- |
+| **XSS Prevention** | Integrated `bleach` to sanitize rich text (Description, Comments). | 🟢 Complete |
+| **CSRF Lifecycle** | Custom error handling + Background heart-beat to keep sessions alive. | 🟢 Complete |
+| **Session Security** | `HTTPONLY`, `SECURE`, `SAMESITE=Lax`, and 30-min lifetimes enforced. | 🟢 Complete |
+| **Rate Limiting** | `Flask-Limiter` active with role-based tiers (Students: 5/day). | 🟢 Complete |
+| **Error Masking** | Custom branded 404, 403, and 500 pages (no stack trace leaks). | 🟢 Complete |
+| **Data Integrity** | User deletion preserves event records (Soft-link preservation). | 🟢 Complete |
+
+## 🛠️ Deployment Instructions
+
+### 1. Environment Variables
+Ensure the following variables are set in your production environment (e.g., .env or CI/CD):
+```env
+FLASK_CONFIG=production
+SECRET_KEY=your-long-random-string-here
+DATABASE_URL=sqlite:///instance/prod.db (or PostgreSQL URL)
+```
+
+### 2. Dependency Installation
+Run the following to install new security libraries:
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Rate Limiting Setup
+By default, the system uses in-memory storage for rate limits. For multi-worker deployments, configure a Redis backend in [app/config.py](file:///d:/EDUCATION/Work/SDLC%20Project/Event%20Planner%20and%20Approval%20System%20-%20Phase%206/app/config.py):
+```python
+RATELIMIT_STORAGE_URI = "redis://localhost:6379/0"
+```
+
+## 🔄 Workflow Refinements
+
+- **Urgent Flag**: Visible as a pulsing red badge on all approver dashboards.
+- **Event Withdrawal**: Students can now pull back events in `Draft` or `Pending Faculty` status.
+- **Admin Reassignment**: Admins can bulk-move pending events from one user to another (e.g., if staff leave).

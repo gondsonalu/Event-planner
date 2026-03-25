@@ -1,0 +1,607 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Event - Event Planner & Approval System{% endblock %}
+
+{% block styles %}
+<style>
+    /* ── Page Header ─────────────────────────────────────────── */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 0.5rem;
+    }
+
+    .page-header p {
+        color: var(--secondary);
+        margin: 0;
+    }
+
+    /* ── Progress Stepper ───────────────────────────────────── */
+    .form-stepper {
+        display: flex;
+        gap: 0;
+        margin-bottom: 2.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--secondary);
+        white-space: nowrap;
+        transition: all 0.2s;
+        cursor: default;
+    }
+
+    .step:first-child {
+        border-radius: 0.5rem 0 0 0.5rem;
+    }
+
+    .step:last-child {
+        border-radius: 0 0.5rem 0.5rem 0;
+    }
+
+    .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        background: #cbd5e1;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .step.active {
+        background: #eff6ff;
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .step.active .step-num {
+        background: var(--primary);
+    }
+
+    /* ── Form Card ───────────────────────────────────────────── */
+    .form-card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    /* ── Form Sections ──────────────────────────────────────── */
+    .form-section {
+        padding: 2rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .section-icon.basic {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .section-icon.audience {
+        background: #fce7f3;
+        color: #db2777;
+    }
+
+    .section-icon.tech {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .section-icon.security {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .section-icon.budget {
+        background: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0;
+    }
+
+    /* ── Grid Layout ────────────────────────────────────────── */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .required::after {
+        content: ' *';
+        color: #ef4444;
+    }
+
+    .form-control {
+        padding: 0.675rem 0.875rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9375rem;
+        color: var(--text);
+        background: #fafbfc;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+    .form-control.is-invalid {
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
+
+    .form-control.is-invalid:focus {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2rem;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 5rem;
+    }
+
+    /* ── Checkboxes ──────────────────────────────────────────── */
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+    }
+
+    .checkbox-item:hover {
+        border-color: var(--primary);
+        background: #eff6ff;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        accent-color: var(--primary);
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .checkbox-item label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: 400;
+        font-size: 0.875rem;
+    }
+
+    /* ── Error Message ──────────────────────────────────────── */
+    .field-error {
+        color: #ef4444;
+        font-size: 0.8125rem;
+        margin-top: 0.125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .field-error::before {
+        content: '⚠';
+        font-size: 0.75rem;
+    }
+
+    /* ── Form Footer ────────────────────────────────────────── */
+    .form-footer {
+        padding: 1.5rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        box-shadow: 0 4px 8px rgba(37, 99, 235, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--secondary);
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+        background: #f8fafc;
+        color: var(--text);
+        border-color: #cbd5e1;
+    }
+
+    .footer-note {
+        font-size: 0.8125rem;
+        color: var(--secondary);
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-stepper {
+            flex-wrap: wrap;
+        }
+
+        .step {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .form-section {
+            padding: 1.25rem;
+        }
+
+        .form-footer {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .checkbox-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Submit New Event Proposal</h1>
+    <p>Complete all required fields below to submit your event for faculty and department head approval.</p>
+</div>
+
+<!-- Step Indicators -->
+<div class="form-stepper" id="formStepper">
+    <div class="step active"><span class="step-num">1</span> Basic Info</div>
+    <div class="step"><span class="step-num">2</span> Audience</div>
+    <div class="step"><span class="step-num">3</span> Technical</div>
+    <div class="step"><span class="step-num">4</span> Security</div>
+    <div class="step"><span class="step-num">5</span> Budget</div>
+</div>
+
+<form method="POST" action="{{ url_for('events.submit_event') }}" id="eventForm" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-card">
+
+        <!-- ─── Section 1: Basic Information ────────────────────── -->
+        <div class="form-section" data-step="1">
+            <div class="section-header">
+                <div class="section-icon basic">📋</div>
+                <h3 class="section-title">Basic Information</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="title" class="required">{{ form.title.label.text }}</label>
+                    {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), id="title") }}
+                    {% for error in form.title.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description" class="required">{{ form.description.label.text }}</label>
+                    {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""),
+                    id="description") }}
+                    {% for error in form.description.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="event_type" class="required">{{ form.event_type.label.text }}</label>
+                    {{ form.event_type(class="form-control" + (" is-invalid" if form.event_type.errors else ""),
+                    id="event_type") }}
+                    {% for error in form.event_type.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="venue" class="required">{{ form.venue.label.text }}</label>
+                    {{ form.venue(class="form-control" + (" is-invalid" if form.venue.errors else ""), id="venue") }}
+                    {% for error in form.venue.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group full-width"
+                    style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; border: 1px dashed #cbd5e1;">
+                    <label style="font-weight: 600; color: var(--primary); margin-bottom: 1rem; display: block;">📅
+                        Schedule Details</label>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="event_date" class="required">{{ form.event_date.label.text }}</label>
+                            {{ form.event_date(class="form-control" + (" is-invalid" if form.event_date.errors else ""),
+                            id="event_date", type="date") }}
+                            {% for error in form.event_date.errors %}
+                            <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="start_time" class="required">{{ form.start_time.label.text }}</label>
+                            {{ form.start_time(class="form-control" + (" is-invalid" if form.start_time.errors else ""),
+                            id="start_time", type="time") }}
+                            {% for error in form.start_time.errors %}
+                            <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="end_time" class="required">{{ form.end_time.label.text }}</label>
+                            {{ form.end_time(class="form-control" + (" is-invalid" if form.end_time.errors else ""),
+                            id="end_time", type="time") }}
+                            {% for error in form.end_time.errors %}
+                            <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Section 2: Audience ─────────────────────────────── -->
+        <div class="form-section" data-step="2">
+            <div class="section-header">
+                <div class="section-icon audience">👥</div>
+                <h3 class="section-title">Audience Details</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="audience_type" class="required">{{ form.audience_type.label.text }}</label>
+                    {{ form.audience_type(class="form-control" + (" is-invalid" if form.audience_type.errors else ""),
+                    id="audience_type") }}
+                    {% for error in form.audience_type.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="audience_size" class="required">{{ form.audience_size.label.text }}</label>
+                    {{ form.audience_size(class="form-control" + (" is-invalid" if form.audience_size.errors else ""),
+                    id="audience_size") }}
+                    {% for error in form.audience_size.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group full-width">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            {{ form.is_external_audience(id="is_external_audience") }}
+                            <label for="is_external_audience">{{ form.is_external_audience.label.text }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Section 3: Technical Requirements ───────────────── -->
+        <div class="form-section" data-step="3">
+            <div class="section-header">
+                <div class="section-icon tech">⚙️</div>
+                <h3 class="section-title">Technical Requirements</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            {{ form.requires_projector(id="requires_projector") }}
+                            <label for="requires_projector">{{ form.requires_projector.label.text }}</label>
+                        </div>
+                        <div class="checkbox-item">
+                            {{ form.requires_microphone(id="requires_microphone") }}
+                            <label for="requires_microphone">{{ form.requires_microphone.label.text }}</label>
+                        </div>
+                        <div class="checkbox-item">
+                            {{ form.requires_live_streaming(id="requires_live_streaming") }}
+                            <label for="requires_live_streaming">{{ form.requires_live_streaming.label.text }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="technical_requirements">{{ form.technical_requirements.label.text }}</label>
+                    {{ form.technical_requirements(class="form-control", id="technical_requirements") }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Section 4: Security ─────────────────────────────── -->
+        <div class="form-section" data-step="4">
+            <div class="section-header">
+                <div class="section-icon security">🛡️</div>
+                <h3 class="section-title">Security Requirements</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            {{ form.requires_security(id="requires_security") }}
+                            <label for="requires_security">{{ form.requires_security.label.text }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="security_requirements">{{ form.security_requirements.label.text }}</label>
+                    {{ form.security_requirements(class="form-control", id="security_requirements") }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Section 5: Budget ───────────────────────────────── -->
+        <div class="form-section" data-step="5">
+            <div class="section-header">
+                <div class="section-icon budget">💰</div>
+                <h3 class="section-title">Budget Information</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="budget" class="required">{{ form.budget.label.text }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text"
+                            style="background: #f1f5f9; border: 1.5px solid #e2e8f0; border-right: none; border-radius: 0.5rem 0 0 0.5rem; padding: 0.675rem 0.875rem;">₹</span>
+                        {{ form.budget(class="form-control" + (" is-invalid" if form.budget.errors else ""),
+                        id="budget", style="border-radius: 0 0.5rem 0.5rem 0;") }}
+                    </div>
+                    {% for error in form.budget.errors %}
+                    <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <!-- spacer -->
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="budget_breakdown">{{ form.budget_breakdown.label.text }}</label>
+                    {{ form.budget_breakdown(class="form-control", id="budget_breakdown") }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Footer / Submit ─────────────────────────────────── -->
+        <div class="form-footer">
+            <span class="footer-note">Fields marked <span style="color:#ef4444;">*</span> are required</span>
+            <div style="display:flex; gap:0.75rem;">
+                <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </div>
+
+    </div><!-- /.form-card -->
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Highlight current section while scrolling
+    document.addEventListener('DOMContentLoaded', function () {
+        const sections = document.querySelectorAll('.form-section[data-step]');
+        const steps = document.querySelectorAll('.step');
+
+        if (!sections.length) return;
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const idx = parseInt(entry.target.dataset.step) - 1;
+                    steps.forEach((s, i) => {
+                        s.classList.toggle('active', i <= idx);
+                    });
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px' });
+
+        sections.forEach(s => observer.observe(s));
+    });
+</script>
+{% endblock %}

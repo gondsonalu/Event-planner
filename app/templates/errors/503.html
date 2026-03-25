@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Maintenance - JNU Jaipur{% endblock %}
+
+{% block content %}
+<div class="maintenance-container">
+    <div class="maintenance-card">
+        <div class="maintenance-image mb-6">
+            <img src="{{ url_for('static', filename='images/maintenance.png') }}" alt="Under Maintenance"
+                class="img-fluid">
+        </div>
+
+        <div class="maintenance-text text-center">
+            <div class="badge badge-warning mb-4">
+                <i class="bi bi-tools mr-2"></i> System Upgrade in Progress
+            </div>
+
+            <h1 class="h1 mb-2">Back Shortly!</h1>
+            <p class="text-muted mb-6">
+                {{ message if message else "We're currently performing some scheduled maintenance to improve your
+                experience. EventFlow will be back online very soon." }}
+            </p>
+
+            <div class="maintenance-info p-4 mb-6">
+                <div class="flex items-center gap-3 justify-center text-primary">
+                    <i class="bi bi-clock-history"></i>
+                    <span class="small fw-bold">Typical duration: 30-60 minutes</span>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                {% if current_user.is_authenticated and current_user.role.name == 'Admin' %}
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary w-100">
+                    <i class="bi bi-shield-lock me-2"></i> Admin Bypass
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-light w-100">
+                    <i class="bi bi-person-badge me-2"></i> Staff Login
+                </a>
+                {% endif %}
+                <a href="mailto:{{ admin_email }}" class="btn btn-sm btn-link text-muted mt-2">
+                    Contact Support ({{ admin_phone }})
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .maintenance-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 2rem;
+    }
+
+    .maintenance-card {
+        max-width: 500px;
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: 1.5rem;
+        padding: 3rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border);
+        transition: transform 0.3s ease;
+    }
+
+    .maintenance-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .maintenance-image img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 1rem;
+    }
+
+    .maintenance-info {
+        background: var(--primary-light);
+        border-radius: 1rem;
+        border: 1px dashed var(--primary);
+    }
+
+    .h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, var(--text), var(--primary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.04em;
+    }
+
+    .img-fluid {
+        filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.1));
+    }
+</style>
+{% endblock %}

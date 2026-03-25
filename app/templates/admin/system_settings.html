@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings - Admin{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">System Configuration</h1>
+    <p class="text-muted">Configure institutional policies, workflow timeouts, and global notifications.</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="mb-0">Workflow Policies</h3>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-6">
+                        <label>Review Timeout (Days)</label>
+                        <input type="number" class="form-control" value="7">
+                        <p class="form-text">Days before a pending review is marked as 'Overdue'.</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="auto_remind" checked style="width: 20px; height: 20px;">
+                            <label for="auto_remind" class="mb-0">Enable Automatic Email Reminders</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label>Max Budget Auto-Approval (₹)</label>
+                        <input type="number" class="form-control" value="0">
+                        <p class="form-text">Set to 0 to disable auto-approval for any budget. Currently all requires
+                            Dept Head.</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Policy</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <h4 class="text-warning mb-4">Danger Zone</h4>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-outline-danger btn-sm">Clear Audit Logs
+                        (Historical)</a>
+
+                    <hr>
+
+                    {% if maintenance_mode %}
+                    <div class="alert alert-danger py-2 small">
+                        <strong>System is currently in MAINTENANCE MODE.</strong>
+                    </div>
+                    <form action="{{ url_for('admin.toggle_maintenance_mode') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-success btn-sm w-100 mb-2">Exit Maintenance Mode</button>
+                    </form>
+                    {% else %}
+                    <button type="button" class="btn btn-warning btn-sm w-100" data-bs-toggle="modal"
+                        data-bs-target="#maintenanceModal">
+                        Enter Maintenance Mode
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Mode Modal -->
+<div class="modal fade" id="maintenanceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enter Maintenance Mode</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin.toggle_maintenance_mode') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <p class="text-danger"><strong>Warning:</strong> The site will be inaccessible to all users except
+                        Administrators.</p>
+                    <div class="mb-3">
+                        <label class="form-label">Maintenance Message</label>
+                        <textarea name="maintenance_message" class="form-control"
+                            rows="3">{{ maintenance_message }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Enable Maintenance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

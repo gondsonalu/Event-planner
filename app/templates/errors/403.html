@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Access Denied | EventFlow{% endblock %}
+
+{% block content %}
+<div style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 480px; width: 100%; border: none; box-shadow: var(--shadow-md);">
+        <div class="card-body" style="padding: 3rem; text-align: center;">
+            <div
+                style="width: 80px; height: 80px; border-radius: 50%; background: var(--danger-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="bi bi-shield-lock" style="font-size: 2rem; color: var(--danger);"></i>
+            </div>
+            <h1 style="font-size: 3.5rem; font-weight: 800; color: var(--danger); margin-bottom: 0.5rem;">403</h1>
+            <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Access Denied</h2>
+            <p class="text-muted" style="margin-bottom: 1.5rem;">
+                You do not have permission to access this resource.
+                This area is restricted based on your role.
+            </p>
+            <div style="background: var(--danger-light); border-radius: 0.5rem; padding: 1rem; margin-bottom: 2rem;">
+                <p style="margin: 0; font-size: 0.875rem; color: var(--danger);">
+                    <i class="bi bi-info-circle mr-2"></i>
+                    If you believe this is an error, please contact your administrator:
+                    <strong>{{ admin_email }}</strong> ({{ admin_phone }})
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                    <i class="bi bi-house mr-2"></i> Home
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-light" style="padding: 0.75rem 2rem;">
+                    <i class="bi bi-speedometer2 mr-2"></i> Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

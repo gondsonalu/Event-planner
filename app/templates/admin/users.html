@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">User Management</h1>
+        <div>
+            <a href="{{ url_for('admin.create_user') }}" class="btn btn-sm btn-primary me-2">
+                <i class="fas fa-user-plus"></i> Create New User
+            </a>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    {% include "shared/search_filter.html" %}
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-white">
+            <h6 class="m-0 font-weight-bold text-primary">System Users</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                            <th class="text-center">Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in pagination.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-2 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 32px; height: 32px;">
+                                        {{ user.username[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ user.full_name or user.username }}</div>
+                                        <div class="small text-muted">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge {% if user.role.name == 'Admin' %}bg-dark{% elif user.role.name == 'DeptHead' %}bg-danger{% elif user.role.name == 'Faculty' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ user.role.value }}
+                                </span>
+                            </td>
+                            <td>{{ user.department or 'N/A' }}</td>
+                            <td class="small text-muted">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <span class="badge bg-success">Active</span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-secondary" title="Edit User">
+                                    <i class="fas fa-user-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="Suspend User">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            {% include "shared/pagination.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

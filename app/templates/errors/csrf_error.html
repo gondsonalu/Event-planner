@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Session Expired | EventFlow{% endblock %}
+
+{% block content %}
+<div style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 480px; width: 100%; border: none; box-shadow: var(--shadow-md);">
+        <div class="card-body" style="padding: 3rem; text-align: center;">
+            <div
+                style="width: 80px; height: 80px; border-radius: 50%; background: var(--warning-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="bi bi-clock-history" style="font-size: 2rem; color: var(--warning);"></i>
+            </div>
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--warning); margin-bottom: 0.5rem;">Session
+                Expired</h1>
+            <h2 style="font-size: 1.1rem; margin-bottom: 1rem; font-weight: 500;">Security Token Invalid</h2>
+            <p class="text-muted" style="margin-bottom: 1.5rem;">
+                Your session has expired or the form security token is invalid.
+                This usually happens when a page is left open for too long.
+            </p>
+
+            {% if reason %}
+            <div
+                style="background: var(--info-light); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1.5rem;">
+                <p style="margin: 0; font-size: 0.8125rem; color: var(--info);">
+                    <i class="bi bi-info-circle mr-2"></i>
+                    <strong>Details:</strong> {{ reason }}
+                </p>
+            </div>
+            {% endif %}
+
+            <div id="auto-refresh-status"
+                style="background: var(--success-light); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem; display: none;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <div class="spinner"
+                        style="width: 16px; height: 16px; border: 2px solid var(--success); border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;">
+                    </div>
+                    <span style="font-size: 0.875rem; color: var(--success); font-weight: 600;">Refreshing security
+                        token...</span>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button onclick="refreshAndRetry()" class="btn btn-primary" style="padding: 0.75rem 2rem; width: 100%;"
+                    id="refreshBtn">
+                    <i class="bi bi-arrow-clockwise mr-2"></i> Refresh & Try Again
+                </button>
+                <a href="{{ url_for('main.index') }}" class="btn btn-light" style="padding: 0.75rem 2rem;">
+                    <i class="bi bi-house mr-2"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<script>
+    function refreshAndRetry() {
+        const statusDiv = document.getElementById('auto-refresh-status');
+        const btn = document.getElementById('refreshBtn');
+
+        statusDiv.style.display = 'block';
+        btn.disabled = true;
+        btn.textContent = 'Refreshing...';
+
+        // Fetch a fresh CSRF token and then reload the page
+        fetch('{{ url_for("auth.get_csrf_token") }}')
+            .then(response => response.json())
+            .then(data => {
+                // Token refreshed — go back to the previous page
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000);
+            })
+            .catch(err => {
+                // Fallback: just reload
+                window.location.reload();
+            });
+    }
+
+    // Auto-refresh after 3 seconds for seamless UX
+    setTimeout(() => {
+        refreshAndRetry();
+    }, 3000);
+</script>
+{% endblock %}

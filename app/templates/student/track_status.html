@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Track Approval Status - EventFlow{% endblock %}
+
+{% block styles %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 2.5rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: var(--border);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-icon {
+        position: absolute;
+        left: -2.35rem;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .timeline-item.completed .timeline-icon {
+        background: var(--success);
+        border-color: var(--success);
+        color: white;
+    }
+
+    .timeline-item.active .timeline-icon {
+        background: var(--warning);
+        border-color: var(--warning);
+        color: white;
+    }
+
+    .timeline-text {
+        padding: 1.25rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--bg);
+        transition: all 0.2s;
+    }
+
+    .timeline-item.completed .timeline-text {
+        background: var(--success-light);
+        border-color: #a7f3d0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="h2">Tracking Event Workflow</h1>
+    <p class="text-muted">Real-time status updates for your selected event.</p>
+</div>
+
+<div class="card mb-6">
+    <div class="card-body">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="mb-0">#{{ event.reference_id }}: {{ event.title }}</h3>
+                <span class="text-muted small">Submitted on {{ event.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+            {% from "shared/event_status_badge.html" import status_badge %}
+            <div style="transform: scale(1.2);">{{ status_badge(event.status) }}</div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline mt-8">
+            <div class="timeline-item completed">
+                <div class="timeline-icon"><i class="bi bi-check-lg"></i></div>
+                <div class="timeline-text">
+                    <div class="flex justify-between">
+                        <span class="fw-bold">Organizer Submission</span>
+                        <span class="small text-muted">Completed</span>
+                    </div>
+                    <div class="small">The event report was successfully submitted by {{ event.creator.username }}.
+                    </div>
+                </div>
+            </div>
+
+            {% set is_faculty_done = event.status.name not in ['Draft', 'Pending_Faculty'] %}
+            {% set is_faculty_active = event.status.name == 'Pending_Faculty' %}
+            <div class="timeline-item {{ 'completed' if is_faculty_done else 'active' if is_faculty_active else '' }}">
+                <div class="timeline-icon">
+                    <i
+                        class="bi {{ 'bi-check-lg' if is_faculty_done else 'bi-hourglass-split' if is_faculty_active else 'bi-circle' }}"></i>
+                </div>
+                <div class="timeline-text">
+                    <div class="flex justify-between">
+                        <span class="fw-bold">Faculty Advisor Review</span>
+                        <span
+                            class="small fw-bold {{ 'text-success' if is_faculty_done else 'text-warning' if is_faculty_active else 'text-muted' }}">
+                            {{ 'Completed' if is_faculty_done else 'In Progress' if is_faculty_active else 'Waiting' }}
+                        </span>
+                    </div>
+                    <div class="small">
+                        {% if is_faculty_done %}
+                        Faculty review completed.
+                        {% else %}
+                        Awaiting preliminary review and comments from the designated Faculty Advisor.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% set is_head_done = event.status.name in ['Approved', 'Rejected'] %}
+            {% set is_head_active = event.status.name == 'Pending_Head' %}
+            <div class="timeline-item {{ 'completed' if is_head_done else 'active' if is_head_active else '' }}">
+                <div class="timeline-icon">
+                    <i
+                        class="bi {{ 'bi-check-lg' if is_head_done else 'bi-building' if is_head_active else 'bi-circle' }}"></i>
+                </div>
+                <div class="timeline-text">
+                    <div class="flex justify-between">
+                        <span class="fw-bold">Department Head Approval</span>
+                        <span
+                            class="small fw-bold {{ 'text-success' if is_head_done else 'text-warning' if is_head_active else 'text-muted' }}">
+                            {{ 'Completed' if is_head_done else 'In Progress' if is_head_active else 'Waiting' }}
+                        </span>
+                    </div>
+                    <div class="small">
+                        {% if is_head_done %}
+                        Final decision recorded by Department Head.
+                        {% else %}
+                        Final institutional validation and venue confirmation step.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item {{ 'completed' if event.status.name == 'Approved' else '' }}">
+                <div class="timeline-icon"><i
+                        class="bi {{ 'bi-flag-fill' if event.status.name == 'Approved' else 'bi-flag' }}"></i></div>
+                <div class="timeline-text">
+                    <div class="flex justify-between">
+                        <span class="fw-bold">Event Logged</span>
+                        <span class="small text-muted">{{ 'Completed' if event.status.name == 'Approved' else 'Waiting'
+                            }}</span>
+                    </div>
+                    <div class="small">System-wide logging and calendar integration.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex gap-2">
+    <a href="{{ url_for('events.student_dashboard') }}" class="btn btn-light"><i class="bi bi-arrow-left mr-2"></i> Back
+        to Dashboard</a>
+    <button class="btn btn-outline-primary" onclick="window.print()"><i class="bi bi-printer mr-2"></i> Print
+        Summary</button>
+</div>
+{% endblock %}

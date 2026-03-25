@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% from "shared/event_status_badge.html" import status_badge %}
+
+{% block title %}Final Review: {{ event.reference_id }}{% endblock %}
+
+{% block content %}
+<nav class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dept_head.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Final Review</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Event Details Card -->
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="mb-0 text-primary">#{{ event.reference_id }}: {{ event.title }}</h3>
+                <span class="badge badge-info">{{ event.status.value }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Event Type</label>
+                        <div class="fw-bold">{{ event.event_type }}</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Venue</label>
+                        <div class="fw-bold">{{ event.venue }}</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Date</label>
+                        <div class="fw-bold">{{ event.event_date.strftime('%B %d, %Y') }}</div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small">Budget</label>
+                        <div class="text-success fw-bold">{{ event.budget | format_inr }}</div>
+                    </div>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border); margin: 0 0 1.5rem 0;">
+                <div>
+                    <label class="text-muted small">Full Description</label>
+                    <p class="mb-0">{{ event.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approval History -->
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="mb-0">Workflow History</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="activity-list">
+                    {% for approval in event.approvals %}
+                    <div class="p-6" style="border-bottom: 1px solid var(--border);">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="fw-bold">{{ approval.level.value }} Level</span>
+                            <span
+                                class="badge {{ 'badge-success' if approval.decision.name == 'Approved' else 'badge-warning' if approval.decision.name == 'Changes_Requested' else 'badge-danger' }}">
+                                {{ approval.decision.value }}
+                            </span>
+                        </div>
+                        <div class="small text-muted mb-3">
+                            Reviewed by <strong>{{ approval.approver.username }}</strong> on {{
+                            approval.timestamp.strftime('%d %b, %H:%M') }}
+                        </div>
+                        {% if approval.comments %}
+                        <div class="p-4 bg-light border-start border-3 border-primary rounded italic">
+                            "{{ approval.comments }}"
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center text-muted">No approval history yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Decision Form -->
+        {% set action_url = url_for('dept_head.decide', event_id=event.id) %}
+        {% set back_url = url_for('dept_head.dashboard') %}
+        {% include 'shared/review_form.html' %}
+
+        <div class="card mt-4 border-warning">
+            <div class="card-body">
+                <h5 class="text-warning mb-3"><i class="bi bi-info-circle mr-2"></i>Escalation Path</h5>
+                <p class="small text-muted mb-4">Cannot decide? Forward this case to the System Administrator for final
+                    policy determination.</p>
+                <button type="button" class="btn btn-outline-warning btn-sm w-100" data-bs-toggle="modal"
+                    data-bs-target="#escalateModal">
+                    Forward to Admin (Exceptional)
+                </button>
+            </div>
+        </div>
+
+        <!-- Escalation Modal -->
+        <div class="modal fade" id="escalateModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reason for Escalation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ url_for('dept_head.escalate', event_id=event.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="modal-body">
+                            <label class="form-label">Explain why this requires Admin intervention:</label>
+                            <textarea name="escalation_reason" class="form-control" rows="4" required
+                                placeholder="e.g., Conflict of Interest, Policy Ambiguity, Stalled Workflow..."></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning">Submit to Admin</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requester Info -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-4">Submitted By</h3>
+                <div class="flex items-center gap-4">
+                    <div class="badge badge-primary"
+                        style="width: 48px; height: 48px; font-size: 1.25rem; justify-content: center;">
+                        {{ event.creator.username[0]|upper }}
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ event.creator.username }}</div>
+                        <div class="small text-muted">{{ event.creator.email }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
