@@ -1,15 +1,21 @@
 import os
 from dotenv import load_dotenv
-from app import create_app
 
-# Load environment variables
 load_dotenv()
 
-# Select config
-config_name = os.getenv("FLASK_CONFIG") or "production"
+try:
+    from app import create_app
 
-# Create Flask app
-app = create_app(config_name)
+    config_name = os.getenv("FLASK_CONFIG") or "production"
+    app = create_app(config_name)
 
-# Vercel expects a variable named "app"
-# Do not rename this
+except Exception as e:
+    from flask import Flask
+    app = Flask(__name__)
+
+    @app.route("/")
+    def error():
+        return f"""
+        <h1>App Failed to Start</h1>
+        <pre>{str(e)}</pre>
+        """
