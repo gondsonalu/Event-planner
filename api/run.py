@@ -5,12 +5,15 @@ from app import create_app
 # Load environment variables
 load_dotenv()
 
-# Create Flask app
-app = create_app(os.getenv("FLASK_CONFIG") or "production")
+# Flask config select
+config_name = os.getenv("FLASK_CONFIG") or "production"
 
-# Vercel serverless entry point
+# Create app
+app = create_app(config_name)
+
+# Vercel expects this variable
 application = app
 
-# Local development ke liye
+# Local development
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=(config_name == "development"))
