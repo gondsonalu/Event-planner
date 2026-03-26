@@ -1,14 +1,14 @@
 {
   "version": 2,
   "functions": {
-    "run.py": {
+    "api/run.py": {
       "runtime": "@vercel/python@3.1.0"
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "run.py"
+      "dest": "api/run.py"
     }
   ]
 }
