@@ -15,3 +15,4 @@ dnspython>=2.4.0
 pandas
 openpyxl
 reportlab
+psycopg2-binary
